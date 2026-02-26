@@ -16,8 +16,8 @@ coverage.html
 go.work
 
 # Compiled binary
-qserv
-qserv-*
+koryx-serv
+koryx-serv-*
 dist/
 
 # Configuration files (may contain sensitive data)

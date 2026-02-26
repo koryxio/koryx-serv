@@ -15,7 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Prometheus metrics
 - Graceful configuration reload
 
-## [1.0.0] - 2025-10-28
+## [1.0.0] - 2026-02-26
 
 ### Added
 - Initial release
@@ -69,13 +69,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Token bucket rate limiting algorithm
 - Automatic cleanup of rate limiter entries
 
-## [0.1.0] - 2025-10-28
-
-### Added
-- Basic prototype
-- Simple file serving
-- Configuration structure
-
 ---
 
 ## Release Notes
@@ -94,10 +87,9 @@ This is the first production-ready release of Serve, a static file server writte
 
 **Download**: See [Releases](https://github.com/koryxio/koryx-serv/releases)
 
-**Documentation**: See [README.md](README.md) and [CONTEXT.md](CONTEXT.md)
+**Documentation**: See [README.md](README.md)
 
 ---
 
 [Unreleased]: https://github.com/koryxio/koryx-serv/compare/v1.0.0...HEAD
 [1.0.0]: https://github.com/koryxio/koryx-serv/releases/tag/v1.0.0
-[0.1.0]: https://github.com/koryxio/koryx-serv/releases/tag/v0.1.0
