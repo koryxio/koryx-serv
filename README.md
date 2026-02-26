@@ -210,7 +210,7 @@ The configuration file uses JSON format. Complete example:
 
 ```
   -config string
-        Path to configuration file (JSON)
+        Path to configuration file (JSON). Overrides KORYX_CONFIG and /app/config.json auto-discovery.
 
   -port int
         Port to listen on (overrides config)
@@ -233,6 +233,12 @@ The configuration file uses JSON format. Complete example:
   -help
         Show this help message
 ```
+
+Configuration precedence:
+1. `-config` flag
+2. `KORYX_CONFIG` environment variable
+3. `/app/config.json` (if present)
+4. Built-in defaults
 
 ## Use Cases
 
@@ -509,6 +515,47 @@ hey -n 10000 -c 100 http://localhost:8080/
 
 ## Docker Support
 
+### Use pre-built image from Docker Hub
+
+```bash
+# Pull latest image
+docker pull koryxio/koryx-serv:latest
+
+# Run and serve local ./public on port 8080
+docker run --rm \
+  -p 8080:8080 \
+  -v "$(pwd)/public:/app/public:ro" \
+  koryxio/koryx-serv:latest
+```
+
+With custom config:
+
+```bash
+docker run --rm \
+  -p 8080:8080 \
+  -v "$(pwd)/public:/app/public:ro" \
+  -v "$(pwd)/config.json:/app/config.json:ro" \
+  koryxio/koryx-serv:latest
+```
+
+### Use with Docker Compose (Docker Hub image)
+
+```yaml
+services:
+  koryx-serv:
+    image: koryxio/koryx-serv:latest
+    container_name: koryx-serv
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./public:/app/public:ro
+      # Optional custom config:
+      # - ./config.json:/app/config.json:ro
+    restart: unless-stopped
+```
+
+### Build image locally
+
 Create a `Dockerfile`:
 
 ```dockerfile
@@ -521,7 +568,6 @@ FROM alpine:latest
 RUN apk --no-cache add ca-certificates
 WORKDIR /root/
 COPY --from=builder /app/koryx-serv .
-COPY --from=builder /app/config.example.json .
 EXPOSE 8080
 CMD ["./koryx-serv"]
 ```

@@ -174,7 +174,7 @@ O arquivo de configuração usa formato JSON. Exemplo completo:
 
 ```
   -config string
-        Caminho para arquivo de configuração (JSON)
+        Caminho para arquivo de configuração (JSON). Sobrescreve KORYX_CONFIG e descoberta automática em /app/config.json.
 
   -port int
         Porta para escutar (sobrescreve config)
@@ -197,6 +197,12 @@ O arquivo de configuração usa formato JSON. Exemplo completo:
   -help
         Mostrar ajuda
 ```
+
+Precedência de configuração:
+1. Flag `-config`
+2. Variável de ambiente `KORYX_CONFIG`
+3. `/app/config.json` (se existir)
+4. Defaults embutidos
 
 ## Casos de Uso
 
@@ -462,6 +468,47 @@ hey -n 10000 -c 100 http://localhost:8080/
 [2025-10-28 14:30:15] GET /index.html - 200 - 15.2ms - 192.168.1.100
 [2025-10-28 14:30:16] GET /style.css - 200 - 8.5ms - 192.168.1.100
 [2025-10-28 14:30:17] GET /app.js - 200 - 12.1ms - 192.168.1.100
+```
+
+## Docker Hub
+
+### Usar imagem pronta do Docker Hub
+
+```bash
+# Baixar imagem mais recente
+docker pull koryxio/koryx-serv:latest
+
+# Rodar e servir o diretório local ./public na porta 8080
+docker run --rm \
+  -p 8080:8080 \
+  -v "$(pwd)/public:/app/public:ro" \
+  koryxio/koryx-serv:latest
+```
+
+Com arquivo de configuração customizado:
+
+```bash
+docker run --rm \
+  -p 8080:8080 \
+  -v "$(pwd)/public:/app/public:ro" \
+  -v "$(pwd)/config.json:/app/config.json:ro" \
+  koryxio/koryx-serv:latest
+```
+
+### Usar com Docker Compose (imagem do Docker Hub)
+
+```yaml
+services:
+  koryx-serv:
+    image: koryxio/koryx-serv:latest
+    container_name: koryx-serv
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./public:/app/public:ro
+      # Opcional: config customizado
+      # - ./config.json:/app/config.json:ro
+    restart: unless-stopped
 ```
 
 ## Contribuindo

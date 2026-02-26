@@ -14,8 +14,6 @@ services:
     environment:
       - TZ=UTC
     restart: unless-stopped
-    # Optional: use custom config
-    # command: ["-config", "/app/config.json"]
 
   # Example with HTTPS
   koryx-serv-https:
@@ -27,7 +25,6 @@ services:
       - ./public:/app/public:ro
       - ./certs:/app/certs:ro
       - ./config-https.json:/app/config.json:ro
-    command: ["-config", "/app/config.json"]
     restart: unless-stopped
     profiles:
       - https
@@ -41,7 +38,6 @@ services:
     volumes:
       - ./private:/app/public:ro
       - ./config-auth.json:/app/config.json:ro
-    command: ["-config", "/app/config.json"]
     restart: unless-stopped
     profiles:
       - auth

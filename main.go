@@ -12,6 +12,11 @@ import (
 
 var version = "dev" // set via ldflags during build
 
+const (
+	defaultContainerConfigPath = "/app/config.json"
+	configPathEnvVar           = "KORYX_CONFIG"
+)
+
 func main() {
 	// Command-line flags
 	configFile := flag.String("config", "", "Path to configuration file (JSON)")
@@ -116,16 +121,48 @@ func main() {
 
 // loadConfiguration loads the configuration
 func loadConfiguration(configFile string) (*Config, error) {
-	if configFile == "" {
-		return DefaultConfig(), nil
+	if configFile != "" {
+		if _, err := os.Stat(configFile); err != nil {
+			if os.IsNotExist(err) {
+				return nil, fmt.Errorf("config file not found: %s", configFile)
+			}
+			return nil, fmt.Errorf("failed to access config file %s: %w", configFile, err)
+		}
+
+		config, err := LoadConfig(configFile)
+		if err != nil {
+			return nil, fmt.Errorf("failed to load config file: %w", err)
+		}
+
+		return config, nil
 	}
 
-	config, err := LoadConfig(configFile)
-	if err != nil {
-		return nil, fmt.Errorf("failed to load config file: %w", err)
+	if envConfigPath := os.Getenv(configPathEnvVar); envConfigPath != "" {
+		if _, err := os.Stat(envConfigPath); err != nil {
+			if os.IsNotExist(err) {
+				return nil, fmt.Errorf("%s points to a missing file: %s", configPathEnvVar, envConfigPath)
+			}
+			return nil, fmt.Errorf("failed to access config file from %s (%s): %w", configPathEnvVar, envConfigPath, err)
+		}
+
+		config, err := LoadConfig(envConfigPath)
+		if err != nil {
+			return nil, fmt.Errorf("failed to load config file from %s (%s): %w", configPathEnvVar, envConfigPath, err)
+		}
+
+		return config, nil
 	}
 
-	return config, nil
+	if _, err := os.Stat(defaultContainerConfigPath); err == nil {
+		config, err := LoadConfig(defaultContainerConfigPath)
+		if err != nil {
+			return nil, fmt.Errorf("failed to load default container config file (%s): %w", defaultContainerConfigPath, err)
+		}
+
+		return config, nil
+	}
+
+	return DefaultConfig(), nil
 }
 
 // validateConfig validates the configuration
@@ -191,7 +228,7 @@ USAGE:
 
 OPTIONS:
   -config string
-        Path to configuration file (JSON)
+        Path to configuration file (JSON). Overrides KORYX_CONFIG and /app/config.json auto-discovery.
 
   -port int
         Port to listen on (overrides config)
@@ -231,7 +268,11 @@ EXAMPLES:
   koryx-serv -generate-config config.example.json
 
 CONFIGURATION:
-  Configuration can be provided via a JSON file using the -config flag.
+  Configuration precedence:
+    1) -config flag
+    2) KORYX_CONFIG environment variable
+    3) /app/config.json (if present)
+    4) built-in defaults
   Use -generate-config to create an example configuration file.
 
 FEATURES:
