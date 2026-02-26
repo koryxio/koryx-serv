@@ -1,6 +1,6 @@
 # Binaries
-qserv
-qserv-*
+koryx-serv
+koryx-serv-*
 dist/
 
 # Git

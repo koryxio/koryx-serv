@@ -3,7 +3,7 @@ name: Release
 on:
   push:
     tags:
-      - 'v*'
+      - "v*"
 
 permissions:
   contents: write
@@ -18,22 +18,22 @@ jobs:
         include:
           - goos: linux
             goarch: amd64
-            output: qserv-linux-amd64
+            output: koryx-serv-linux-amd64
           - goos: linux
             goarch: arm64
-            output: qserv-linux-arm64
+            output: koryx-serv-linux-arm64
           - goos: darwin
             goarch: amd64
-            output: qserv-darwin-amd64
+            output: koryx-serv-darwin-amd64
           - goos: darwin
             goarch: arm64
-            output: qserv-darwin-arm64
+            output: koryx-serv-darwin-arm64
           - goos: windows
             goarch: amd64
-            output: qserv-windows-amd64.exe
+            output: koryx-serv-windows-amd64.exe
           - goos: windows
             goarch: arm64
-            output: qserv-windows-arm64.exe
+            output: koryx-serv-windows-arm64.exe
 
     steps:
       - name: Checkout code
@@ -42,7 +42,7 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v5
         with:
-          go-version: '1.21'
+          go-version: "1.21"
 
       - name: Build binary
         env:
