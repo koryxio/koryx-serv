@@ -17,6 +17,8 @@ go.work
 
 # Compiled binary
 koryx-serv
+!cmd/koryx-serv/
+!cmd/koryx-serv/*.go
 koryx-serv-*
 dist/
 

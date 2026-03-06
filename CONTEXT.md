@@ -91,28 +91,15 @@ Complete development documentation, architecture decisions, and technical contex
 ### Component Diagram
 
 ```
-┌──────────────┐
-│   main.go    │  Entry point, CLI parsing, signal handling
-└──────┬───────┘
-       │
-       ├─────────┐
-       │         │
-       ▼         ▼
-┌──────────┐ ┌────────────┐
-│config.go │ │ logger.go  │  Configuration & Logging subsystems
-└────┬─────┘ └─────┬──────┘
-     │             │
-     └──────┬──────┘
-            │
+┌───────────────────────┐
+│ cmd/koryx-serv/main.go│  CLI entrypoint, flags, lifecycle
+└───────────┬───────────┘
+            │ imports
             ▼
-      ┌──────────┐
-      │server.go │  HTTP server setup & file handling
-      └────┬─────┘
-           │
-           ▼
-    ┌──────────────┐
-    │middleware.go │  Security & performance middleware
-    └──────────────┘
+┌───────────────────────────────────────────────┐
+│ package koryxserv (module root)              │
+│ config.go, logger.go, server.go, middleware.go│
+└───────────────────────────────────────────────┘
 ```
 
 ---
@@ -121,14 +108,16 @@ Complete development documentation, architecture decisions, and technical contex
 
 ```
 koryx-serv/
-├── main.go                 # CLI entry point, flag parsing, application lifecycle
+├── cmd/
+│   └── koryx-serv/
+│       └── main.go         # CLI entry point, flag parsing, application lifecycle
 ├── config.go               # Configuration structures and JSON loading
 ├── server.go               # HTTP server, file serving logic, directory listing
 ├── middleware.go           # All middleware implementations
 ├── logger.go               # Logging system with colors and levels
+├── *_test.go               # Unit tests for library and CLI behavior
 ├── go.mod                  # Go module definition
 ├── config.example.json     # Example configuration file
-├── index.html              # Demo/welcome page
 ├── Makefile                # Build automation
 ├── .gitignore              # Git ignore rules
 ├── LICENSE                 # MIT License
@@ -144,7 +133,7 @@ koryx-serv/
 
 ## Core Components
 
-### 1. main.go
+### 1. cmd/koryx-serv/main.go
 
 **Purpose**: Application entry point and CLI interface
 
@@ -163,10 +152,12 @@ koryx-serv/
 
 **Configuration Priority** (highest to lowest):
 1. Command-line flags
-2. Configuration file
-3. Default values
+2. `-config` file path
+3. `KORYX_CONFIG` environment variable
+4. `/app/config.json` (container default)
+5. Built-in defaults
 
-### 2. config.go
+### 2. config.go (package `koryxserv`)
 
 **Purpose**: Configuration data structures and persistence
 
@@ -192,7 +183,7 @@ Config
 - Falls back to defaults if file doesn't exist
 - Supports partial configuration (merges with defaults)
 
-### 3. server.go
+### 3. server.go (package `koryxserv`)
 
 **Purpose**: HTTP server setup and file serving logic
 
@@ -209,6 +200,8 @@ type Server struct {
 
 **Key Functions**:
 - `NewServer()`: Creates server instance
+- `NewHandler()`: Returns a reusable `http.Handler` for embedding in other Go services
+- `Handler()`: Builds the middleware + routing stack without starting a dedicated listener
 - `Start()`: Starts HTTP/HTTPS server
 - `setupHandlers()`: Configures middleware chain
 - `createFileHandler()`: Main file serving logic
@@ -232,7 +225,7 @@ type Server struct {
 - Filters hidden files if configured
 - Mobile-responsive design
 
-### 4. middleware.go
+### 4. middleware.go (package `koryxserv`)
 
 **Purpose**: HTTP middleware for security and performance
 
@@ -695,13 +688,13 @@ None currently. Code is clean and well-structured.
 
 ```bash
 # Development build
-go build
+go build ./cmd/koryx-serv
 
 # Production build (optimized)
-go build -ldflags="-s -w"
+go build -ldflags="-s -w" ./cmd/koryx-serv
 
 # With version
-go build -ldflags="-s -w -X main.version=v1.0.0"
+go build -ldflags="-s -w -X main.version=v1.0.0" ./cmd/koryx-serv
 
 # Using Make
 make build
@@ -737,7 +730,7 @@ golangci-lint run
 
 1. **Update config.go**: Add configuration options
 2. **Update middleware.go or server.go**: Implement feature
-3. **Update main.go**: Add CLI flags if needed
+3. **Update cmd/koryx-serv/main.go**: Add CLI flags if needed
 4. **Update config.example.json**: Document new options
 5. **Update README.md**: Document usage
 6. **Update CONTEXT.md**: Document architecture changes
@@ -763,9 +756,9 @@ make build-all
 make release-local
 
 # Manual
-GOOS=linux GOARCH=amd64 go build -o koryx-serv-linux-amd64
-GOOS=darwin GOARCH=arm64 go build -o koryx-serv-darwin-arm64
-GOOS=windows GOARCH=amd64 go build -o koryx-serv-windows-amd64.exe
+GOOS=linux GOARCH=amd64 go build -o koryx-serv-linux-amd64 ./cmd/koryx-serv
+GOOS=darwin GOARCH=arm64 go build -o koryx-serv-darwin-arm64 ./cmd/koryx-serv
+GOOS=windows GOARCH=amd64 go build -o koryx-serv-windows-amd64.exe ./cmd/koryx-serv
 ```
 
 ### Debugging

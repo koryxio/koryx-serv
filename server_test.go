@@ -1,4 +1,4 @@
-package main
+package koryxserv
 
 import (
 	"context"
@@ -394,5 +394,33 @@ func TestServerStartAndGracefulShutdown(t *testing.T) {
 		}
 	case <-time.After(3 * time.Second):
 		t.Fatalf("Server did not stop within timeout")
+	}
+}
+
+func TestNewHandler(t *testing.T) {
+	root := t.TempDir()
+	if err := os.WriteFile(root+"/index.html", []byte("ok"), 0o644); err != nil {
+		t.Fatalf("failed to write test file: %v", err)
+	}
+
+	config := DefaultConfig()
+	config.Server.RootDir = root
+	config.Performance.EnableCompression = false
+	logger, _ := NewLogger(&LoggingConfig{Enabled: false})
+
+	handler, err := NewHandler(config, logger)
+	if err != nil {
+		t.Fatalf("expected NewHandler to succeed, got error: %v", err)
+	}
+
+	req := httptest.NewRequest("GET", "/", nil)
+	w := httptest.NewRecorder()
+	handler.ServeHTTP(w, req)
+
+	if w.Code != http.StatusOK {
+		t.Fatalf("expected status 200, got %d", w.Code)
+	}
+	if !strings.Contains(w.Body.String(), "ok") {
+		t.Fatalf("expected body to contain served content, got %q", w.Body.String())
 	}
 }

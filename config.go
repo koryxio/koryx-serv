@@ -1,4 +1,4 @@
-package main
+package koryxserv
 
 import (
 	"encoding/json"
@@ -8,11 +8,11 @@ import (
 
 // Config represents the full server configuration
 type Config struct {
-	Server        ServerConfig        `json:"server"`
-	Security      SecurityConfig      `json:"security"`
-	Performance   PerformanceConfig   `json:"performance"`
-	Logging       LoggingConfig       `json:"logging"`
-	Features      FeaturesConfig      `json:"features"`
+	Server        ServerConfig         `json:"server"`
+	Security      SecurityConfig       `json:"security"`
+	Performance   PerformanceConfig    `json:"performance"`
+	Logging       LoggingConfig        `json:"logging"`
+	Features      FeaturesConfig       `json:"features"`
 	RuntimeConfig *RuntimeConfigConfig `json:"runtime_config,omitempty"`
 }
 
@@ -21,23 +21,23 @@ type ServerConfig struct {
 	Port         int    `json:"port"`
 	Host         string `json:"host"`
 	RootDir      string `json:"root_dir"`
-	ReadTimeout  int    `json:"read_timeout"`   // seconds
-	WriteTimeout int    `json:"write_timeout"`  // seconds
+	ReadTimeout  int    `json:"read_timeout"`  // seconds
+	WriteTimeout int    `json:"write_timeout"` // seconds
 }
 
 // SecurityConfig contains security settings
 type SecurityConfig struct {
-	EnableHTTPS      bool              `json:"enable_https"`
-	CertFile         string            `json:"cert_file"`
-	KeyFile          string            `json:"key_file"`
-	BasicAuth        *BasicAuthConfig  `json:"basic_auth,omitempty"`
-	CORS             *CORSConfig       `json:"cors,omitempty"`
-	RateLimit        *RateLimitConfig  `json:"rate_limit,omitempty"`
-	IPWhitelist      []string          `json:"ip_whitelist,omitempty"`
-	IPBlacklist      []string          `json:"ip_blacklist,omitempty"`
-	BlockHiddenFiles bool              `json:"block_hidden_files"`
-	AllowedPaths     []string          `json:"allowed_paths,omitempty"`
-	BlockedPaths     []string          `json:"blocked_paths,omitempty"`
+	EnableHTTPS      bool             `json:"enable_https"`
+	CertFile         string           `json:"cert_file"`
+	KeyFile          string           `json:"key_file"`
+	BasicAuth        *BasicAuthConfig `json:"basic_auth,omitempty"`
+	CORS             *CORSConfig      `json:"cors,omitempty"`
+	RateLimit        *RateLimitConfig `json:"rate_limit,omitempty"`
+	IPWhitelist      []string         `json:"ip_whitelist,omitempty"`
+	IPBlacklist      []string         `json:"ip_blacklist,omitempty"`
+	BlockHiddenFiles bool             `json:"block_hidden_files"`
+	AllowedPaths     []string         `json:"allowed_paths,omitempty"`
+	BlockedPaths     []string         `json:"blocked_paths,omitempty"`
 }
 
 // BasicAuthConfig configures HTTP basic authentication
@@ -87,22 +87,22 @@ type LoggingConfig struct {
 
 // FeaturesConfig contains additional features
 type FeaturesConfig struct {
-	DirectoryListing bool     `json:"directory_listing"`
-	IndexFiles       []string `json:"index_files"`
-	SPAMode          bool     `json:"spa_mode"` // redirect all routes to index.html
-	SPAIndex         string   `json:"spa_index"`
+	DirectoryListing bool              `json:"directory_listing"`
+	IndexFiles       []string          `json:"index_files"`
+	SPAMode          bool              `json:"spa_mode"` // redirect all routes to index.html
+	SPAIndex         string            `json:"spa_index"`
 	CustomErrorPages map[string]string `json:"custom_error_pages,omitempty"`
 }
 
 // RuntimeConfigConfig configures runtime config output
 type RuntimeConfigConfig struct {
 	Enabled      bool     `json:"enabled"`
-	Route        string   `json:"route"`          // route where config is served (default: /runtime-config.js)
-	Format       string   `json:"format"`         // "js" or "json" (default: js)
-	VarName      string   `json:"var_name"`       // JavaScript variable name (default: APP_CONFIG)
-	EnvPrefix    string   `json:"env_prefix"`     // env var prefix (e.g., "APP_" or "RUNTIME_")
-	EnvVariables []string `json:"env_variables"`  // specific variable list (alternative to prefix)
-	NoCache      bool     `json:"no_cache"`       // if true, add no-cache headers
+	Route        string   `json:"route"`         // route where config is served (default: /runtime-config.js)
+	Format       string   `json:"format"`        // "js" or "json" (default: js)
+	VarName      string   `json:"var_name"`      // JavaScript variable name (default: APP_CONFIG)
+	EnvPrefix    string   `json:"env_prefix"`    // env var prefix (e.g., "APP_" or "RUNTIME_")
+	EnvVariables []string `json:"env_variables"` // specific variable list (alternative to prefix)
+	NoCache      bool     `json:"no_cache"`      // if true, add no-cache headers
 }
 
 // DefaultConfig returns the default configuration

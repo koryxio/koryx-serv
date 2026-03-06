@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- Reusable library mode via `package koryxserv`
+- `NewHandler(config, logger)` API to mount static serving in another Go `http` server
+- `Server.Handler()` API to expose the configured handler chain without starting a dedicated listener
+
+### Changed
+- Project layout now separates CLI and library:
+  - CLI entrypoint moved to `cmd/koryx-serv/main.go`
+  - Core implementation stays at module root as reusable package
+- Build and runtime tooling updated to point to `./cmd/koryx-serv` (`Makefile`, `Dockerfile`)
+- Tests reorganized to keep CLI tests under `cmd/koryx-serv` and library tests at module root
+- Documentation updated (`README.md`, `README.pt-BR.md`, `CONTEXT.md`) with new layout and library usage examples
+
 ### Planned
 - HTTP/2 support
 - Brotli compression

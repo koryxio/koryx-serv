@@ -77,7 +77,7 @@ koryx-serv -version
 ```bash
 git clone https://github.com/koryxio/koryx-serv.git
 cd koryx-serv
-go build -o koryx-serv
+go build -o koryx-serv ./cmd/koryx-serv
 ```
 
 ### Using Make
@@ -239,6 +239,40 @@ Configuration precedence:
 2. `KORYX_CONFIG` environment variable
 3. `/app/config.json` (if present)
 4. Built-in defaults
+
+## Using as a Library
+
+`koryx-serv` can also be imported by another Go service.
+
+```go
+import (
+	"net/http"
+
+	koryxserv "koryx-serv"
+)
+
+func mountStatic(mux *http.ServeMux) error {
+	cfg := koryxserv.DefaultConfig()
+	cfg.Server.RootDir = "./public"
+
+	logger, err := koryxserv.NewLogger(&cfg.Logging)
+	if err != nil {
+		return err
+	}
+
+	staticHandler, err := koryxserv.NewHandler(cfg, logger)
+	if err != nil {
+		return err
+	}
+
+	mux.Handle("/static/", http.StripPrefix("/static", staticHandler))
+	return nil
+}
+```
+
+Notes:
+- The CLI entrypoint lives in `./cmd/koryx-serv`.
+- Core reusable package lives at module root (`package koryxserv`).
 
 ## Use Cases
 
@@ -562,7 +596,7 @@ Create a `Dockerfile`:
 FROM golang:1.21-alpine AS builder
 WORKDIR /app
 COPY . .
-RUN go build -ldflags="-s -w" -o koryx-serv
+RUN go build -ldflags="-s -w" -o koryx-serv ./cmd/koryx-serv
 
 FROM alpine:latest
 RUN apk --no-cache add ca-certificates

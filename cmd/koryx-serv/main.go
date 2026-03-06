@@ -8,6 +8,8 @@ import (
 	"os/signal"
 	"syscall"
 	"time"
+
+	koryxserv "koryx-serv"
 )
 
 var version = "dev" // set via ldflags during build
@@ -44,7 +46,7 @@ func main() {
 
 	// Generate example configuration file
 	if *generateConfig != "" {
-		if err := SaveConfig(*generateConfig, DefaultConfig()); err != nil {
+		if err := koryxserv.SaveConfig(*generateConfig, koryxserv.DefaultConfig()); err != nil {
 			fmt.Fprintf(os.Stderr, "Error generating config: %v\n", err)
 			os.Exit(1)
 		}
@@ -80,14 +82,14 @@ func main() {
 	}
 
 	// Create logger
-	logger, err := NewLogger(&config.Logging)
+	logger, err := koryxserv.NewLogger(&config.Logging)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error creating logger: %v\n", err)
 		os.Exit(1)
 	}
 
 	// Create and start server
-	server := NewServer(config, logger)
+	server := koryxserv.NewServer(config, logger)
 
 	// Configure SIGINT/SIGTERM handler
 	sigChan := make(chan os.Signal, 1)
@@ -120,7 +122,7 @@ func main() {
 }
 
 // loadConfiguration loads the configuration
-func loadConfiguration(configFile string) (*Config, error) {
+func loadConfiguration(configFile string) (*koryxserv.Config, error) {
 	if configFile != "" {
 		if _, err := os.Stat(configFile); err != nil {
 			if os.IsNotExist(err) {
@@ -129,7 +131,7 @@ func loadConfiguration(configFile string) (*Config, error) {
 			return nil, fmt.Errorf("failed to access config file %s: %w", configFile, err)
 		}
 
-		config, err := LoadConfig(configFile)
+		config, err := koryxserv.LoadConfig(configFile)
 		if err != nil {
 			return nil, fmt.Errorf("failed to load config file: %w", err)
 		}
@@ -145,7 +147,7 @@ func loadConfiguration(configFile string) (*Config, error) {
 			return nil, fmt.Errorf("failed to access config file from %s (%s): %w", configPathEnvVar, envConfigPath, err)
 		}
 
-		config, err := LoadConfig(envConfigPath)
+		config, err := koryxserv.LoadConfig(envConfigPath)
 		if err != nil {
 			return nil, fmt.Errorf("failed to load config file from %s (%s): %w", configPathEnvVar, envConfigPath, err)
 		}
@@ -154,7 +156,7 @@ func loadConfiguration(configFile string) (*Config, error) {
 	}
 
 	if _, err := os.Stat(defaultContainerConfigPath); err == nil {
-		config, err := LoadConfig(defaultContainerConfigPath)
+		config, err := koryxserv.LoadConfig(defaultContainerConfigPath)
 		if err != nil {
 			return nil, fmt.Errorf("failed to load default container config file (%s): %w", defaultContainerConfigPath, err)
 		}
@@ -162,11 +164,11 @@ func loadConfiguration(configFile string) (*Config, error) {
 		return config, nil
 	}
 
-	return DefaultConfig(), nil
+	return koryxserv.DefaultConfig(), nil
 }
 
 // validateConfig validates the configuration
-func validateConfig(config *Config) error {
+func validateConfig(config *koryxserv.Config) error {
 	// Validate port
 	if config.Server.Port < 1 || config.Server.Port > 65535 {
 		return fmt.Errorf("invalid port: %d (must be between 1-65535)", config.Server.Port)

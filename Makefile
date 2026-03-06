@@ -10,16 +10,16 @@ help: ## Show this help message
 	@awk 'BEGIN {FS = ":.*?## "} /^[a-zA-Z_-]+:.*?## / {printf "  %-15s %s\n", $$1, $$2}' $(MAKEFILE_LIST)
 
 build: ## Build for current platform
-	go build -ldflags="$(LDFLAGS)" -o koryx-serv
+	go build -ldflags="$(LDFLAGS)" -o koryx-serv ./cmd/koryx-serv
 
 build-all: ## Build for all platforms
 	@echo "Building for all platforms..."
-	GOOS=linux GOARCH=amd64 go build -ldflags="$(LDFLAGS)" -o dist/koryx-serv-linux-amd64
-	GOOS=linux GOARCH=arm64 go build -ldflags="$(LDFLAGS)" -o dist/koryx-serv-linux-arm64
-	GOOS=darwin GOARCH=amd64 go build -ldflags="$(LDFLAGS)" -o dist/koryx-serv-darwin-amd64
-	GOOS=darwin GOARCH=arm64 go build -ldflags="$(LDFLAGS)" -o dist/koryx-serv-darwin-arm64
-	GOOS=windows GOARCH=amd64 go build -ldflags="$(LDFLAGS)" -o dist/koryx-serv-windows-amd64.exe
-	GOOS=windows GOARCH=arm64 go build -ldflags="$(LDFLAGS)" -o dist/koryx-serv-windows-arm64.exe
+	GOOS=linux GOARCH=amd64 go build -ldflags="$(LDFLAGS)" -o dist/koryx-serv-linux-amd64 ./cmd/koryx-serv
+	GOOS=linux GOARCH=arm64 go build -ldflags="$(LDFLAGS)" -o dist/koryx-serv-linux-arm64 ./cmd/koryx-serv
+	GOOS=darwin GOARCH=amd64 go build -ldflags="$(LDFLAGS)" -o dist/koryx-serv-darwin-amd64 ./cmd/koryx-serv
+	GOOS=darwin GOARCH=arm64 go build -ldflags="$(LDFLAGS)" -o dist/koryx-serv-darwin-arm64 ./cmd/koryx-serv
+	GOOS=windows GOARCH=amd64 go build -ldflags="$(LDFLAGS)" -o dist/koryx-serv-windows-amd64.exe ./cmd/koryx-serv
+	GOOS=windows GOARCH=arm64 go build -ldflags="$(LDFLAGS)" -o dist/koryx-serv-windows-arm64.exe ./cmd/koryx-serv
 	@echo "Done! Binaries are in ./dist/"
 
 release-local: clean build-all ## Create local release archives
@@ -52,10 +52,10 @@ test-short: ## Run tests without verbose output
 	go test ./...
 
 install: ## Install to $GOPATH/bin
-	go install -ldflags="$(LDFLAGS)"
+	go install -ldflags="$(LDFLAGS)" ./cmd/koryx-serv
 
 run: ## Run the server
-	go run -ldflags="$(LDFLAGS)" .
+	go run -ldflags="$(LDFLAGS)" ./cmd/koryx-serv
 
 fmt: ## Format code
 	go fmt ./...

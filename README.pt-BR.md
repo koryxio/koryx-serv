@@ -44,20 +44,20 @@ Um servidor de arquivos estáticos leve, rápido e rico em recursos, escrito em 
 ```bash
 git clone https://github.com/koryxio/koryx-serv.git
 cd koryx-serv
-go build -o koryx-serv
+go build -o koryx-serv ./cmd/koryx-serv
 ```
 
 ### Compilar para múltiplas plataformas
 
 ```bash
 # Linux
-GOOS=linux GOARCH=amd64 go build -o koryx-serv-linux
+GOOS=linux GOARCH=amd64 go build -o koryx-serv-linux ./cmd/koryx-serv
 
 # Windows
-GOOS=windows GOARCH=amd64 go build -o koryx-serv.exe
+GOOS=windows GOARCH=amd64 go build -o koryx-serv.exe ./cmd/koryx-serv
 
 # macOS
-GOOS=darwin GOARCH=amd64 go build -o koryx-serv-macos
+GOOS=darwin GOARCH=amd64 go build -o koryx-serv-macos ./cmd/koryx-serv
 ```
 
 ## Uso Rápido
@@ -203,6 +203,40 @@ Precedência de configuração:
 2. Variável de ambiente `KORYX_CONFIG`
 3. `/app/config.json` (se existir)
 4. Defaults embutidos
+
+## Uso como biblioteca
+
+`koryx-serv` também pode ser importado em outro serviço Go.
+
+```go
+import (
+	"net/http"
+
+	koryxserv "koryx-serv"
+)
+
+func montarEstaticos(mux *http.ServeMux) error {
+	cfg := koryxserv.DefaultConfig()
+	cfg.Server.RootDir = "./public"
+
+	logger, err := koryxserv.NewLogger(&cfg.Logging)
+	if err != nil {
+		return err
+	}
+
+	staticHandler, err := koryxserv.NewHandler(cfg, logger)
+	if err != nil {
+		return err
+	}
+
+	mux.Handle("/static/", http.StripPrefix("/static", staticHandler))
+	return nil
+}
+```
+
+Notas:
+- O entrypoint CLI fica em `./cmd/koryx-serv`.
+- O pacote reutilizável fica na raiz do módulo (`package koryxserv`).
 
 ## Casos de Uso
 

@@ -5,6 +5,8 @@ import (
 	"path/filepath"
 	"strings"
 	"testing"
+
+	koryxserv "koryx-serv"
 )
 
 func TestLoadConfiguration_ConfigFlagMissingFileReturnsError(t *testing.T) {
@@ -21,9 +23,9 @@ func TestLoadConfiguration_UsesEnvConfigPath(t *testing.T) {
 	tmpDir := t.TempDir()
 	configPath := filepath.Join(tmpDir, "config.json")
 
-	cfg := DefaultConfig()
+	cfg := koryxserv.DefaultConfig()
 	cfg.Server.Port = 9090
-	if err := SaveConfig(configPath, cfg); err != nil {
+	if err := koryxserv.SaveConfig(configPath, cfg); err != nil {
 		t.Fatalf("failed to save test config: %v", err)
 	}
 
@@ -55,15 +57,15 @@ func TestLoadConfiguration_ConfigFlagOverridesEnvConfigPath(t *testing.T) {
 	flagConfigPath := filepath.Join(tmpDir, "config-flag.json")
 	envConfigPath := filepath.Join(tmpDir, "config-env.json")
 
-	flagConfig := DefaultConfig()
+	flagConfig := koryxserv.DefaultConfig()
 	flagConfig.Server.Port = 7777
-	if err := SaveConfig(flagConfigPath, flagConfig); err != nil {
+	if err := koryxserv.SaveConfig(flagConfigPath, flagConfig); err != nil {
 		t.Fatalf("failed to save flag config: %v", err)
 	}
 
-	envConfig := DefaultConfig()
+	envConfig := koryxserv.DefaultConfig()
 	envConfig.Server.Port = 8888
-	if err := SaveConfig(envConfigPath, envConfig); err != nil {
+	if err := koryxserv.SaveConfig(envConfigPath, envConfig); err != nil {
 		t.Fatalf("failed to save env config: %v", err)
 	}
 

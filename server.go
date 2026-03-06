@@ -1,4 +1,4 @@
-package main
+package koryxserv
 
 import (
 	"context"
@@ -28,6 +28,18 @@ func NewServer(config *Config, logger *Logger) *Server {
 		logger: logger,
 		mux:    http.NewServeMux(),
 	}
+}
+
+// NewHandler creates a reusable HTTP handler with all configured koryx-serv features.
+func NewHandler(config *Config, logger *Logger) (http.Handler, error) {
+	server := NewServer(config, logger)
+	return server.Handler(), nil
+}
+
+// Handler returns the configured HTTP handler without starting a dedicated HTTP server.
+func (s *Server) Handler() http.Handler {
+	s.setupHandlers()
+	return s.mux
 }
 
 // Start starts the server
