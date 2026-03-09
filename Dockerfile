@@ -13,9 +13,11 @@ COPY . .
 RUN CGO_ENABLED=0 GOOS=linux go build -ldflags="-s -w -X main.version=docker" -o koryx-serv ./cmd/koryx-serv
 
 # Runtime stage
-FROM alpine:latest
+FROM alpine:3.23
 
-RUN apk --no-cache add ca-certificates tzdata
+RUN apk update && \
+    apk upgrade --no-cache && \
+    apk --no-cache add ca-certificates tzdata
 RUN addgroup -g 1000 koryx-serv && \
     adduser -D -u 1000 -G koryx-serv koryx-serv
 
